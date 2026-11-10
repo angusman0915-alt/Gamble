@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>終極沉迷與防賭博教育模擬器</title>
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --panel-bg: #131b2e;
+            --panel-border: #1f2d4a;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-gold: #f59e0b;
+            --accent-blue: #3b82f6;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(180deg, #1e1b4b 0%, var(--bg-dark) 100%);
+            padding: 1.5rem;
+            text-align: center;
+            border-bottom: 2px solid #312e81;
+        }
+
+        header h1 {
+            color: var(--accent-red);
+            font-size: 2rem;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-sub);
+            font-size: 0.95rem;
+        }
+
+        /* 頂部數據儀表板 */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .stat-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* 導覽分頁 */
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            background-color: #0d1322;
+            padding: 0.75rem;
+            flex-wrap: wrap;
+            border-y: 1px solid var(--panel-border);
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--panel-border);
+            color: var(--text-sub);
+            padding: 0.6rem 1.2rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            color: var(--text-main);
+            background: #1e293b;
+            border-color: var(--accent-blue);
+        }
+
+        .nav-btn.active {
+            border-bottom: 3px solid var(--accent-gold);
+            background: #1e1b4b;
+        }
+
+        .nav-btn.loan-tab {
+            border-color: var(--accent-red);
+            color: #fca5a5;
+        }
+
+        /* 主要內容區域 */
+        main {
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .game-title {
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 投注與控制元件 */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        input, select, button {
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--panel-border);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        button {
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn-bet {
+            background-color: var(--accent-red);
+            color: white;
+            border: none;
+        }
+
+        .btn-bet:hover { background-color: #dc2626; }
+
+        .btn-loan {
+            background-color: var(--accent-gold);
+            color: black;
+            border: none;
+        }
+
+        .btn-loan:hover { background-color: #d97706; }
+
+        .btn-day {
+            background-color: var(--accent-blue);
+            color: white;
+            border: none;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        /* 各遊戲專用介面 */
+        .game-display {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1rem;
+            border: 1px dashed var(--panel-border);
+        }
+
+        .slot-wheels {
+            display: flex;
+            gap: 1rem;
+            font-size: 3.5rem;
+        }
+
+        .roulette-wheel {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .card-hand {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 2rem;
+        }
+
+        /* 側邊欄日誌與警訊 */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .log-box {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .log-box h3 {
+            font-size: 1.1rem;
+            color: var(--accent-blue);
+            margin-bottom: 0.8rem;
+        }
+
+        .logs-container {
+            background: var(--bg-dark);
+            border-radius: 6px;
+            padding: 0.8rem;
+            flex: 1;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            border: 1px solid var(--panel-border);
+        }
+
+        .log-item {
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .log-item.danger { color: var(--accent-red); }
+        .log-item.warning { color: var(--accent-gold); }
+        .log-item.success { color: var(--accent-green); }
+
+        /* 破產教育彈窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-content {
+            background: var(--panel-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 550px;
+            width: 90%;
+            border: 2px solid var(--accent-red);
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            color: var(--accent-red);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .guidance-list {
+            text-align: left;
+            background: var(--bg-dark);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1.2rem 0;
+            border-left: 4px solid var(--accent-gold);
+        }
+
+        .guidance-list li {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+        }
+
+        .guidance-list strong {
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>防賭博教育模擬器：賭博陷阱與破產邊緣</h1>
+        <p>全項目賭博匯集 × 地下高利貸陷阱 × 完全隨機莊家優勢</p>
+    </header>
+
+    <!-- 頂部數據狀態 -->
+    <div class="dashboard">
+        <div class="stat-card">
+            <div class="stat-label">目前現金</div>
+            <div class="stat-value" id="val-cash" style="color: var(--accent-green);">$10,000</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">總負債 (高利貸/銀行)</div>
+            <div class="stat-value" id="val-debt" style="color: var(--accent-red);">$0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">每日滾雪球利息</div>
+            <div class="stat-value" id="val-interest" style="color: var(--accent-gold);">$0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">心理健康值</div>
+            <div class="stat-value" id="val-health">100%</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">模擬天數</div>
+            <div class="stat-value" id="val-day">第 1 天</div>
+        </div>
+    </div>
+
+    <!-- 賭博種類選單 -->
+    <nav>
+        <button class="nav-btn active" onclick="switchTab('tab-sports')">⚽ 體育/世界盃</button>
+        <button class="nav-btn" onclick="switchTab('tab-baccarat')">🎴 百家樂</button>
+        <button class="nav-btn" onclick="switchTab('tab-dice')">🎲 骰子/大小</button>
+        <button class="nav-btn" onclick="switchTab('tab-roulette')">🎡 輪盤</button>
+        <button class="nav-btn" onclick="switchTab('tab-slots')">🎰 老虎機</button>
+        <button class="nav-btn" onclick="switchTab('tab-lottery')">🎟️ 彩券/六合彩</button>
+        <button class="nav-btn" onclick="switchTab('tab-gacha')">📦 網遊抽卡/盲盒</button>
+        <button class="nav-btn loan-tab" onclick="switchTab('tab-loan')">⚠️ 借錢/地下錢莊</button>
+    </nav>
+
+    <main>
+        <!-- 主賭博遊戲區 -->
+        <div class="content-area">
+
+            <!-- 1. 體育 / 世界盃 -->
+            <div id="tab-sports" class="tab-content active">
+                <div class="game-title">
+                    <span>全球體育賽事讓球盤 (完全隨機 50/50/Draw)</span>
+                    <span style="font-size: 0.8rem; color: var(--text-sub);">抽水賠率: 1.90</span>
+                </div>
+                <div class="game-display" id="disp-sports">
+                    <h2>阿根廷 vs 巴西</h2>
+                    <p style="margin-top: 0.5rem; color: var(--text-sub);">點擊下注模擬隨機賽果</p>
+                </div>
+                <div class="controls-grid">
+                    <div class="form-group">
+                        <label>選擇隊伍</label>
+                        <select id="sports-pick">
+                            <option value="A">主隊勝 (賠率 1.90)</option>
+                            <option value="B">客隊勝 (賠率 1.90)</option>
+                            <option value="D">平局 (賠率 3.10)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>下注金額</label>
+                        <input type="number" id="sports-amount" value="1000" min="100">
+                    </div>
+                </div>
+                <button class="btn-bet" style="width: 100%;" onclick="playSports()">進行賽事投注</button>
+            </div>
+
+            <!-- 2. 百家樂 -->
+            <div id="tab-baccarat" class="tab-content">
+                <div class="game-title">
+                    <span>百家樂 (Baccarat)</span>
+                    <span style="font-size: 0.8rem; color: var(--text-sub);">莊抽水 5%</span>
+                </div>
+                <div class="game-display">
+                    <div class="card-hand" id="disp-baccarat">
+                        <span>🂠 🂠</span> vs <span>🂠 🂠</span>
+                    </div>
+                    <p style="margin-top: 0.5rem; color: var(--text-sub);" id="disp-baccarat-text">莊家 vs 閒家</p>
+                </div>
+                <div class="controls-grid">
+                    <div class="form-group">
+                        <label>投注對象</label>
+                        <select id="bac-pick">
+                            <option value="banker">莊家 (Banker - 賠率 1:0.95)</option>
+                            <option value="player">閒家 (Player - 賠率 1:1)</option>
+                            <option value="tie">和局 (Tie - 賠率 1:8)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>下注金額</label>
+                        <input type="number" id="bac-amount" value="1000" min="100">
+                    </div>
+                </div>
+                <button class="btn-bet" style="width: 100%;" onclick="playBaccarat()">開牌</button>
+            </div>
+
+            <!-- 3. 骰子大小 -->
+            <div id="tab-dice" class="tab-content">
+                <div class="game-title">
+                    <span>骰子猜大小 (Sic Bo)</span>
+                    <span style="font-size: 0.8rem; color: var(--text-sub);">圍骰通殺陷阱 (勝率 48.6%)</span>
+                </div>
+                <div class="game-display">
+                    <div style="font-size: 3rem;" id="disp-dice">🎲 🎲 🎲</div>
+                    <p style="margin-top: 0.5rem; color: var(--text-sub);" id="disp-dice-val">總點數: ?</p>
+                </div>
+                <div class="controls-grid">
+                    <div class="form-group">
+                        <label>選擇大小</label>
+                        <select id="dice-pick">
+                            <option value="big">大 (11 - 17 點)</option>
+                            <option value="small">小 (4 - 10 點)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>下注金額</label>
+                        <input type="number" id="dice-amount" value="1000" min="100">
+                    </div>
+                </div>
+                <button class="btn-bet" style="width: 100%;" onclick="playDice()">搖骰子</button>
+            </div>
+
+            <!-- 4. 美式輪盤 -->
+            <div id="tab-roulette" class="tab-content">
+                <div class="game-title">
+                    <span>輪盤 (Roulette)</span>
+                    <span style="font-size: 0.8rem; color: var(--text-sub);">含 0 與 00 (莊家優勢 5.26%)</span>
+                </div>
+                <div class="game-display">
+                    <div class="roulette-wheel" id="disp-roulette">🎡 [ 00 ]</div>
+                </div>
+                <div class="controls-grid">
+                    <div class="form-group">
+                        <label>投注類型</label>
+                        <select id="rou-pick">
+                            <option value="red">紅 (Red - 1:1)</option>
+                            <option value="black">黑 (Black - 1:1)</option>
+                            <option value="single">單一號碼 (1:35)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>下注金額</label>
+                        <input type="number" id="rou-amount" value="1000" min="100">
+                    </div>
+                </div>
+                <button class="btn-bet" style="width: 100%;" onclick="playRoulette()">旋轉輪盤</button>
+            </div>
+
+            <!-- 5. 老虎機 -->
+            <div id="tab-slots" class="tab-content">
+                <div class="game-title">
+                    <span>老虎機 (Slot Machine)</span>
+                    <span style="font-size: 0.8rem; color: var(--text-sub);">返還率 (RTP) 僅 85%</span>
+                </div>
+                <div class="game-display">
+                    <div class="slot-wheels" id="disp-slots">🍒 🍋 🔔</div>
+                </div>
+                <div class="controls-grid">
+                    <div class="form-group">
+                        <label>單次拉角金額</label>
+                        <input type="number" id="slot-amount" value="500" min="100">
+                    </div>
+                </div>
+                <button class="btn-bet" style="width: 100%;" onclick="playSlots()">拉動桿子 (Spin)</button>
+            </div>
+
+            <!-- 6. 六合彩/彩券 -->
+            <div id="tab-lottery" class="tab-content">
+                <div class="game-title">
+                    <span>數值彩券 / 六合彩</span>
+                    <span style="font-size: 0.8rem; color: var(--text-sub);">頭獎機率: 1 / 14,000,000</span>
+                </div>
+                <div class="game-display">
+                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-gold);" id="disp-lottery">
+                        [ ? ] [ ? ] [ ? ] [ ? ] [ ? ] [ ? ]
+                    </div>
+                </div>
+                <div class="controls-grid">
+                    <div class="form-group">
+                        <label>購買注數 ($100/注)</label>
+                        <input type="number" id="lottery-tickets" value="10" min="1">
+                    </div>
+                </div>
+                <button class="btn-bet" style="width: 100%;" onclick="playLottery()">開獎</button>
+            </div>
+
+            <!-- 7. 盲盒 / 網遊抽卡 -->
+            <div id="tab-gacha" class="tab-content">
+                <div class="game-title">
+                    <span>網遊轉蛋 / 沉沒成本盲盒</span>
+                    <span style="font-size: 0.8rem; color: var(--text-sub);">UR 稀有率 0.5% (偽隨機保底陷阱)</span>
+                </div>
+                <div class="game-display">
+                    <div style="font-size: 2rem;" id="disp-gacha">📦 點擊抽取盲盒</div>
+                    <p style="margin-top: 0.5rem; color: var(--text-sub);" id="disp-gacha-count">已累積抽卡: 0 次</p>
+                </div>
+                <div class="controls-grid">
+                    <div class="form-group">
+                        <label>十連抽金額 ($2,000)</label>
+                    </div>
+                </div>
+                <button class="btn-bet" style="width: 100%;" onclick="playGacha()">進行 10 連抽</button>
+            </div>
+
+            <!-- 8. 借款與高利貸 -->
+            <div id="tab-loan" class="tab-content">
+                <div class="game-title">
+                    <span style="color: var(--accent-red);">⚠️ 借貸與地下錢莊陷阱</span>
+                </div>
+                <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    當您輸光本金，想要「借錢翻本」時，這正是掉入萬劫不復深淵的開始。
+                </p>
+                <div class="controls-grid">
+                    <div class="form-group">
+                        <label>選擇借款管道</label>
+                        <select id="loan-type" onchange="updateLoanInfo()">
+                            <option value="bank">正則銀行貸款 (日利息 0.5%，限額 $5,000)</option>
+                            <option value="shark">地下錢莊 / 高利貸 (日利息 10% 複利，無上限)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>借款金額</label>
+                        <input type="number" id="loan-amount" value="10000" min="1000">
+                    </div>
+                </div>
+                <button class="btn-loan" style="width: 100%;" onclick="takeLoan()">簽約借款 (拿取翻本資金)</button>
+            </div>
+
+        </div>
+
+        <!-- 右側輔導與日誌記錄欄 -->
+        <div class="sidebar">
+            <div class="log-box">
+                <h3>日誌與財務動態</h3>
+                <div class="logs-container" id="game-logs">
+                    <div class="log-item">歡迎來到防賭博模擬器。請隨意體驗各種賭博遊戲，並觀察您的財務變化。</div>
+                </div>
+                <button class="btn-day" onclick="nextDay()">結算至下一天 (算利息與追債)</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 破產教育彈窗 -->
+    <div class="modal" id="bankruptcy-modal">
+        <div class="modal-content">
+            <h2>🚨 陷入破產與債務危機</h2>
+            <p>您的現金已全部歸零，且無力清償滾雪球般的高利貸與負債。</p>
+
+            <div class="guidance-list">
+                <p style="color: var(--accent-gold); font-weight: bold; margin-bottom: 0.5rem;">賭博與借貸的真實後果：</p>
+                <ul>
+                    <li><strong>莊家優勢與數學必然：</strong> 無論是球賽、百家樂還是輪盤，所有賭博遊戲都內建「數學劣勢」，長期玩必定歸零。</li>
+                    <li><strong>賭徒謬誤 (Gambler's Fallacy)：</strong> 「已經輸了十把，下一把一定會贏回來」是致命的心理錯覺，每次下注都是獨立事件。</li>
+                    <li><strong>高利貸滾雪球：</strong> 10% 的日利息代表債務只需短短一週就會翻倍。賭博贏錢的速度永遠趕不上利滾利。</li>
+                    <li><strong>人生代價：</strong> 破產意味著信用破產、資產遭法院強制清算、家人面臨催收騷擾，以及極高的心理崩潰風險。</li>
+                </ul>
+            </div>
+
+            <button class="btn-bet" style="width: 100%; padding: 0.8rem; font-size: 1.1rem;" onclick="resetGame()">重新開始模擬 (汲取教訓)</button>
+        </div>
+    </div>
+
+    <script>
+        // 全局遊戲數據狀態
+        let state = {
+            cash: 10000,
+            bankLoan: 0,
+            sharkLoan: 0,
+            health: 100,
+            day: 1,
+            gachaCount: 0
+        };
+
+        // 更新介面顯示
+        function updateUI() {
+            document.getElementById('val-cash').innerText = `$${state.cash.toLocaleString()}`;
+            const totalDebt = state.bankLoan + state.sharkLoan;
+            document.getElementById('val-debt').innerText = `$${totalDebt.toLocaleString()}`;
+            
+            // 計算每日利息
+            const dailyInterest = Math.floor(state.bankLoan * 0.005 + state.sharkLoan * 0.10);
+            document.getElementById('val-interest').innerText = `$${dailyInterest.toLocaleString()} /天`;
+
+            const healthEl = document.getElementById('val-health');
+            healthEl.innerText = `${state.health}%`;
+            if (state.health < 40) healthEl.style.color = 'var(--accent-red)';
+            else if (state.health < 70) healthEl.style.color = 'var(--accent-gold)';
+            else healthEl.style.color = 'var(--accent-green)';
+
+            document.getElementById('val-day').innerText = `第 ${state.day} 天`;
+
+            checkBankruptcy();
+        }
+
+        // 印出日誌
+        function log(msg, type = '') {
+            const container = document.getElementById('game-logs');
+            const item = document.createElement('div');
+            item.className = `log-item ${type}`;
+            item.innerText = `[天數:${state.day}] ${msg}`;
+            container.insertBefore(item, container.firstChild);
+        }
+
+        // 切換遊戲頁籤
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 通用扣款驗證
+        function checkCash(amount) {
+            if (isNaN(amount) || amount <= 0) {
+                alert('請輸入有效的金額！');
+                return false;
+            }
+            if (state.cash < amount) {
+                alert('現金不足！你是否正在考慮前往「借錢/地下錢莊」借款翻本？（警惕：這正是破產陷阱的開始）');
+                return false;
+            }
+            return true;
+        }
+
+        // --- 1. 體育投注 ---
+        function playSports() {
+            const amount = parseInt(document.getElementById('sports-amount').value);
+            if (!checkCash(amount)) return;
+
+            state.cash -= amount;
+            const pick = document.getElementById('sports-pick').value;
+            const rand = Math.random();
+
+            if (rand < 0.45 && pick === 'A') {
+                const win = Math.floor(amount * 1.90);
+                state.cash += win;
+                log(`[體育] 主隊獲勝！贏得 $${win - amount}`, 'success');
+            } else if (rand >= 0.45 && rand < 0.90 && pick === 'B') {
+                const win = Math.floor(amount * 1.90);
+                state.cash += win;
+                log(`[體育] 客隊獲勝！贏得 $${win - amount}`, 'success');
+            } else if (rand >= 0.90 && pick === 'D') {
+                const win = Math.floor(amount * 3.10);
+                state.cash += win;
+                log(`[體育] 爆冷平局！贏得 $${win - amount}`, 'success');
+            } else {
+                log(`[體育] 預測失敗，損失 $${amount}`, 'danger');
+                state.health = Math.max(0, state.health - 2);
+            }
+            updateUI();
+        }
+
+        // --- 2. 百家樂 ---
+        function playBaccarat() {
+            const amount = parseInt(document.getElementById('bac-amount').value);
+            if (!checkCash(amount)) return;
+
+            state.cash -= amount;
+            const pick = document.getElementById('bac-pick').value;
+            const rand = Math.random();
+
+            const pCard = Math.floor(Math.random() * 9) + 1;
+            const bCard = Math.floor(Math.random() * 9) + 1;
+            document.getElementById('disp-baccarat').innerHTML = `<span>🂠 ${bCard}</span> vs <span>🂠 ${pCard}</span>`;
+
+            if (rand < 0.458 && pick === 'banker') {
+                const win = Math.floor(amount * 1.95);
+                state.cash += win;
+                log(`[百家樂] 莊勝！(抽水 5%) 獲得 $${win}`, 'success');
+            } else if (rand >= 0.458 && rand < 0.904 && pick === 'player') {
+                const win = amount * 2;
+                state.cash += win;
+                log(`[百家樂] 閒勝！獲得 $${win}`, 'success');
+            } else if (rand >= 0.904 && pick === 'tie') {
+                const win = amount * 9;
+                state.cash += win;
+                log(`[百家樂] 和局！獲得 $${win}`, 'success');
+            } else {
+                log(`[百家樂] 開牌落敗，損失 $${amount}`, 'danger');
+                state.health = Math.max(0, state.health - 2);
+            }
+            updateUI();
+        }
+
+        // --- 3. 骰子大小 ---
+        function playDice() {
+            const amount = parseInt(document.getElementById('dice-amount').value);
+            if (!checkCash(amount)) return;
+
+            state.cash -= amount;
+            const pick = document.getElementById('dice-pick').value;
+            
+            const d1 = Math.floor(Math.random() * 6) + 1;
+            const d2 = Math.floor(Math.random() * 6) + 1;
+            const d3 = Math.floor(Math.random() * 6) + 1;
+            const sum = d1 + d2 + d3;
+
+            document.getElementById('disp-dice').innerText = `🎲 ${d1} ${d2} ${d3}`;
+            document.getElementById('disp-dice-val').innerText = `總點數: ${sum}`;
+
+            // 圍骰通殺
+            if (d1 === d2 && d2 === d3) {
+                log(`[骰子] 豹子/圍骰 (${sum}點) 莊家通殺！損失 $${amount}`, 'danger');
+                state.health = Math.max(0, state.health - 5);
+            } else if ((sum >= 11 && pick === 'big') || (sum <= 10 && pick === 'small')) {
+                state.cash += amount * 2;
+                log(`[骰子] 猜中 ${sum > 10 ? '大' : '小'}！贏得 $${amount}`, 'success');
+            } else {
+                log(`[骰子] 猜錯大小，損失 $${amount}`, 'danger');
+                state.health = Math.max(0, state.health - 2);
+            }
+            updateUI();
+        }
+
+        // --- 4. 輪盤 ---
+        function playRoulette() {
+            const amount = parseInt(document.getElementById('rou-amount').value);
+            if (!checkCash(amount)) return;
+
+            state.cash -= amount;
+            const pick = document.getElementById('rou-pick').value;
+            const num = Math.floor(Math.random() * 38); // 0-36, 37是00
+
+            const isRed = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(num);
+            const numStr = num === 37 ? '00' : num.toString();
+            document.getElementById('disp-roulette').innerText = `🎡 [ ${numStr} ]`;
+
+            if (pick === 'red' && isRed) {
+                state.cash += amount * 2;
+                log(`[輪盤] 開出紅號 ${numStr}！贏得 $${amount}`, 'success');
+            } else if (pick === 'black' && !isRed && num !== 0 && num !== 37) {
+                state.cash += amount * 2;
+                log(`[輪盤] 開出黑號 ${numStr}！贏得 $${amount}`, 'success');
+            } else {
+                log(`[輪盤] 莊家落球至 ${numStr}，投注歸零，損失 $${amount}`, 'danger');
+                state.health = Math.max(0, state.health - 2);
+            }
+            updateUI();
+        }
+
+        // --- 5. 老虎機 ---
+        function playSlots() {
+            const amount = parseInt(document.getElementById('slot-amount').value);
+            if (!checkCash(amount)) return;
+
+            state.cash -= amount;
+            const icons = ['🍒', '🍋', '🔔', '🍉', '💎', '7️⃣'];
+            const i1 = icons[Math.floor(Math.random() * icons.length)];
+            const i2 = icons[Math.floor(Math.random() * icons.length)];
+            const i3 = icons[Math.floor(Math.random() * icons.length)];
+
+            document.getElementById('disp-slots').innerText = `${i1} ${i2} ${i3}`;
+
+            if (i1 === i2 && i2 === i3) {
+                const win = amount * 10;
+                state.cash += win;
+                log(`[老虎機] 🎉 JACKPOT 大獎！獲得 $${win}`, 'success');
+            } else if (i1 === i2 || i2 === i3 || i1 === i3) {
+                const win = Math.floor(amount * 1.5);
+                state.cash += win;
+                log(`[老虎機] 湊成兩連圖，拿回 $${win}`, 'warning');
+            } else {
+                log(`[老虎機] 槓龜，拉桿金額 $${amount} 沒收`, 'danger');
+            }
+            updateUI();
+        }
+
+        // --- 6. 六合彩 ---
+        function playLottery() {
+            const tickets = parseInt(document.getElementById('lottery-tickets').value);
+            const cost = tickets * 100;
+            if (!checkCash(cost)) return;
+
+            state.cash -= cost;
+            const winRand = Math.random();
+
+            if (winRand < 0.00001) { // 模擬極低頭獎機率
+                state.cash += 500000;
+                log(`[彩券] 奇蹟中頭獎！獲得 $500,000！`, 'success');
+            } else if (winRand < 0.05) {
+                state.cash += cost * 2;
+                log(`[彩券] 中小獎！獲得 $${cost * 2}`, 'warning');
+            } else {
+                log(`[彩券] 購買的 ${tickets} 注彩券全部摃龜，損失 $${cost}`, 'danger');
+            }
+            updateUI();
+        }
+
+        // --- 7. 網遊抽卡 ---
+        function playGacha() {
+            const cost = 2000;
+            if (!checkCash(cost)) return;
+
+            state.cash -= cost;
+            state.gachaCount += 10;
+            document.getElementById('disp-gacha-count').innerText = `已累積抽卡: ${state.gachaCount} 次`;
+
+            const rand = Math.random();
+            if (rand < 0.05) { // 5% 得 UR
+                document.getElementById('disp-gacha').innerText = `✨ 抽中 UR 稀有卡片！`;
+                log(`[網遊抽卡] 抽中 UR 稀有虛擬寶物！但虛擬物品無法變現。`, 'warning');
+            } else {
+                document.getElementById('disp-gacha').innerText = `📦 全部都是 N / R 垃圾道具`;
+                log(`[網遊抽卡] 10 連抽全是垃圾道具，損失 $${cost}`, 'danger');
+            }
+            updateUI();
+        }
+
+        // --- 8. 借款系統 ---
+        function takeLoan() {
+            const type = document.getElementById('loan-type').value;
+            const amount = parseInt(document.getElementById('loan-amount').value);
+
+            if (isNaN(amount) || amount <= 0) return;
+
+            if (type === 'bank') {
+                if (amount > 5000) {
+                    alert('銀行審核拒絕：信用評分過低，最多僅能貸款 $5,000。');
+                    return;
+                }
+                state.bankLoan += amount;
+                state.cash += amount;
+                log(`[貸款] 成功向銀行借款 $${amount} (日利息 0.5%)`, 'warning');
+            } else {
+                state.sharkLoan += amount;
+                state.cash += amount;
+                state.health = Math.max(0, state.health - 20);
+                log(`[⚠️高利貸] 簽約地下錢莊借款 $${amount}！日利息 10% 每日複利滾算！`, 'danger');
+            }
+            updateUI();
+        }
+
+        // 結算下一天 (利息結算與追債)
+        function nextDay() {
+            state.day++;
+            
+            // 計算利息並滾入負債
+            const bankInt = Math.floor(state.bankLoan * 0.005);
+            const sharkInt = Math.floor(state.sharkLoan * 0.10); // 10% 巨額利息
+
+            state.bankLoan += bankInt;
+            state.sharkLoan += sharkInt;
+
+            log(`[每日結算] 銀行利息 +$${bankInt}，高利貸複利 +$${sharkInt}`, 'warning');
+
+            if (state.sharkLoan > 0) {
+                state.health = Math.max(0, state.health - 15);
+                log(`[⚠️黑道追債] 地下錢莊登門威脅討債，心理健康值大幅下降！`, 'danger');
+            }
+
+            updateUI();
+        }
+
+        // 檢查破產條件
+        function checkBankruptcy() {
+            const totalDebt = state.bankLoan + state.sharkLoan;
+            if ((state.cash <= 0 && totalDebt > 0) || state.health <= 0) {
+                document.getElementById('bankruptcy-modal').style.display = 'flex';
+            }
+        }
+
+        // 重置遊戲
+        function resetGame() {
+            state = { cash: 10000, bankLoan: 0, sharkLoan: 0, health: 100, day: 1, gachaCount: 0 };
+            document.getElementById('bankruptcy-modal').style.display = 'none';
+            document.getElementById('game-logs').innerHTML = '<div class="log-item">模擬器已重置。記住：遠離賭博與高利貸，才是保障人生與財務安全的唯一途徑。</div>';
+            updateUI();
+        }
+
+        // 初始載入
+        window.onload = function() {
+            updateUI();
+        };
+    </script>
+</body>
+</html>
